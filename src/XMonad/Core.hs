@@ -116,6 +116,7 @@ data XConfig l = XConfig
     , logHook            :: !(X ())              -- ^ The action to perform when the windows set is changed
     , messageHook        :: !(String -> X ())    -- ^ Present a string to the user
     , startupHook        :: !(X ())              -- ^ The action to perform on startup
+    , shutdownHook       :: !(X ())              -- ^ The action to perform on shutdown
     , focusFollowsMouse  :: !Bool                -- ^ Whether window entry events can change focus
     , clickJustFocuses   :: !Bool                -- ^ False to make a click which changes focus to be additionally passed to the window
     , clientMask         :: !EventMask           -- ^ The client events that xmonad is interested in

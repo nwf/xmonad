@@ -34,6 +34,7 @@ import Control.Monad.Reader
 import Control.Monad.State
 import qualified Control.Exception.Extensible as C
 
+import System.Exit(ExitCode,exitWith)
 import System.IO
 import System.Directory
 import System.Posix.Process (executeFile)
@@ -516,12 +517,22 @@ migrateState ws xs = do
                     [(x, "")] -> Just x
                     _         -> Nothing
 
+-- | Properly shut down XMonad.  Please use this instead of io (exitWith _).
+--
+-- If given an exit status, it will actually exit xmonad; otherwise, it
+-- simply invokes the resource management calls.
+exit :: Maybe ExitCode -> X ()
+exit mec = do
+    _ <- userCode =<< asks (shutdownHook . config)
+    broadcastMessage ReleaseResources
+    maybe (return ()) (io . exitWith) mec
+
 -- | @restart name resume@. Attempt to restart xmonad by executing the program
 -- @name@.  If @resume@ is 'True', restart with the current window state.
 -- When executing another window manager, @resume@ should be 'False'.
 restart :: String -> Bool -> X ()
 restart prog resume = do
-    broadcastMessage ReleaseResources
+    exit Nothing
     io . flush =<< asks display
     when resume writeStateToFile
     catchIO (executeFile prog True [] Nothing)

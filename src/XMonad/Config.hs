@@ -26,11 +26,11 @@ module XMonad.Config (defaultConfig, Default(..)) where
 -- Useful imports
 --
 import XMonad.Core as XMonad hiding
-    (workspaces,manageHook,keys,logHook,startupHook,borderWidth,mouseBindings
+    (workspaces,manageHook,keys,logHook,startupHook,shutdownHook,borderWidth,mouseBindings
     ,layoutHook,modMask,terminal,normalBorderColor,focusedBorderColor,focusFollowsMouse
     ,handleEventHook,messageHook,clickJustFocuses,rootMask,clientMask)
 import qualified XMonad.Core as XMonad
-    (workspaces,manageHook,keys,logHook,startupHook,borderWidth,mouseBindings
+    (workspaces,manageHook,keys,logHook,startupHook,shutdownHook,borderWidth,mouseBindings
     ,layoutHook,modMask,terminal,normalBorderColor,focusedBorderColor,focusFollowsMouse
     ,handleEventHook,messageHook,clickJustFocuses,rootMask,clientMask)
 
@@ -130,6 +130,10 @@ handleEventHook _ = return (All True)
 startupHook :: X ()
 startupHook = return ()
 
+-- | Perform an arbitrary action at xmonad shutdown.
+shutdownHook :: X ()
+shutdownHook = return ()
+
 ------------------------------------------------------------------------
 -- Extensible layouts
 --
@@ -226,7 +230,7 @@ keys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask              , xK_period), sendMessage (IncMasterN (-1))) -- %! Deincrement the number of windows in the master area
 
     -- quit, or restart
-    , ((modMask .|. shiftMask, xK_q     ), io (exitWith ExitSuccess)) -- %! Quit xmonad
+    , ((modMask .|. shiftMask, xK_q     ), exit $ Just ExitSuccess) -- %! Quit xmonad
     , ((modMask              , xK_q     ), spawn "if type xmonad; then xmonad --recompile && xmonad --restart; else xmessage xmonad not in \\$PATH: \"$PATH\"; fi") -- %! Restart xmonad
 
     , ((modMask .|. shiftMask, xK_slash ), helpCommand)
@@ -276,6 +280,7 @@ instance (a ~ Choose Tall (Choose (Mirror Tall) Full)) => Default (XConfig a) wh
     , XMonad.logHook            = logHook
     , XMonad.messageHook        = messageHook
     , XMonad.startupHook        = startupHook
+    , XMonad.shutdownHook       = shutdownHook
     , XMonad.mouseBindings      = mouseBindings
     , XMonad.manageHook         = manageHook
     , XMonad.handleEventHook    = handleEventHook
