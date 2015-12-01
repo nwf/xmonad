@@ -28,11 +28,11 @@ module XMonad.Config (defaultConfig, Default(..)) where
 import XMonad.Core as XMonad hiding
     (workspaces,manageHook,keys,logHook,startupHook,borderWidth,mouseBindings
     ,layoutHook,modMask,terminal,normalBorderColor,focusedBorderColor,focusFollowsMouse
-    ,handleEventHook,clickJustFocuses,rootMask,clientMask)
+    ,handleEventHook,messageHook,clickJustFocuses,rootMask,clientMask)
 import qualified XMonad.Core as XMonad
     (workspaces,manageHook,keys,logHook,startupHook,borderWidth,mouseBindings
     ,layoutHook,modMask,terminal,normalBorderColor,focusedBorderColor,focusFollowsMouse
-    ,handleEventHook,clickJustFocuses,rootMask,clientMask)
+    ,handleEventHook,messageHook,clickJustFocuses,rootMask,clientMask)
 
 import XMonad.Layout
 import XMonad.Operations
@@ -43,6 +43,8 @@ import Data.Default
 import Data.Monoid
 import qualified Data.Map as M
 import System.Exit
+import System.Exit(ExitCode(ExitSuccess))
+import System.Posix.Process (executeFile, forkProcess)
 import Graphics.X11.Xlib
 import Graphics.X11.Xlib.Extras
 
@@ -108,6 +110,12 @@ manageHook = composeAll
 --
 logHook :: X ()
 logHook = return ()
+
+-- | Inform a user of a string, typically by xmessage
+messageHook :: String -> X ()
+messageHook s = io $ do
+    forkProcess $ executeFile "xmessage" True ["-default", "okay", s] Nothing
+    return ()
 
 ------------------------------------------------------------------------
 -- Event handling
@@ -266,6 +274,7 @@ instance (a ~ Choose Tall (Choose (Mirror Tall) Full)) => Default (XConfig a) wh
     , XMonad.modMask            = defaultModMask
     , XMonad.keys               = keys
     , XMonad.logHook            = logHook
+    , XMonad.messageHook        = messageHook
     , XMonad.startupHook        = startupHook
     , XMonad.mouseBindings      = mouseBindings
     , XMonad.manageHook         = manageHook
