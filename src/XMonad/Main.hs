@@ -403,7 +403,9 @@ handle e@(ConfigureRequestEvent {ev_window = w}) = withDisplay $ \dpy -> do
     io $ sync dpy False
 
 -- configuration changes in the root may mean display settings have changed
-handle (ConfigureEvent {ev_window = w}) = whenX (isRoot w) rescreen
+handle (ConfigureEvent {ev_window = w}) = whenX (isRoot w) $ do
+    rescreen
+    asks (logHook . config) >>= userCodeDef ()
 
 -- property notify
 handle event@(PropertyEvent { ev_event_type = t, ev_atom = a })
